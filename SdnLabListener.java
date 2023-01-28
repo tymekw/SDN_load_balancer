@@ -66,13 +66,13 @@ public class SdnLabListener implements IFloodlightModule, IOFMessageListener {
 
     @Override
     public boolean isCallbackOrderingPrereq(OFType type, String name) {
-        // TODO Auto-generated method stub
+        // TODO Auto-generated method stub 
         return false;
     }
 
     @Override
     public boolean isCallbackOrderingPostreq(OFType type, String name) {
-        // TODO Auto-generated method stub
+        // TODO Auto-generated method stub 
         return false;
     }
 
@@ -86,7 +86,7 @@ public class SdnLabListener implements IFloodlightModule, IOFMessageListener {
 
         ServerInstance selectedInstance = getBestInstance();
         // Add some lag in order to force choosing different server (Simple Python server is single threaded)
-        selectedInstance.addLastResponseTime(50L);
+        selectedInstance.addLastResponseTime(500L);
         logger.info("Selected best instance: " + selectedInstance.getIp());
 
 
@@ -134,18 +134,39 @@ public class SdnLabListener implements IFloodlightModule, IOFMessageListener {
     }
 
     private static ServerInstance getBestInstance() {
-        long minResponseTime = Long.MAX_VALUE;
+        long minLastResponseTime = Long.MAX_VALUE;
         ServerInstance bestServer = null;
+        List<ServerInstance> bestResponseServers = new ArrayList<ServerInstance>();
 
         for (ServerInstance instance : serverList) {
-            logger.info("Instance " + instance.getIp() + " average response: " + instance.getAverageResponseTime());
-            if (instance.getAverageResponseTime() < minResponseTime) {
-                minResponseTime = instance.getAverageResponseTime();
-                bestServer = instance;
+            logger.info("Instance " + instance.getIp() + " latest response: " + instance.getLatestResponseTime());
+            if (instance.getLatestResponseTime() == minLastResponseTime) {
+                bestResponseServers.add(instance);
+
+            } else if(instance.getLatestResponseTime() < minLastResponseTime) {
+                minLastResponseTime = instance.getLatestResponseTime();
+                bestResponseServers.clear();
+                bestResponseServers.add(instance);
             }
         }
 
-        return bestServer;
+        if (bestResponseServers.size() == 1) {
+            return bestResponseServers.get(0);
+        }
+
+
+        long minAverageResponseTime = Long.MAX_VALUE;
+        ServerInstance bestAverageServer = null;
+        for (ServerInstance instance : bestResponseServers) {
+            logger.info("Instance " + instance.getIp() + " average response: " + instance.getAverageResponseTime());
+            if (instance.getAverageResponseTime() < minAverageResponseTime) {
+                minAverageResponseTime = instance.getAverageResponseTime();
+                bestAverageServer = instance;
+            }
+        }
+
+
+        return bestAverageServer;
     }
 
     private static TCP extractTCP(FloodlightContext cntx) {
@@ -165,13 +186,13 @@ public class SdnLabListener implements IFloodlightModule, IOFMessageListener {
 
     @Override
     public Collection<Class<? extends IFloodlightService>> getModuleServices() {
-        // TODO Auto-generated method stub
+        // TODO Auto-generated method stub 
         return null;
     }
 
     @Override
     public Map<Class<? extends IFloodlightService>, IFloodlightService> getServiceImpls() {
-        // TODO Auto-generated method stub
+        // TODO Auto-generated method stub 
         return null;
     }
 
