@@ -1,0 +1,61 @@
+package pl.edu.agh.kt;
+ 
+import org.projectfloodlight.openflow.types.OFPort;
+ 
+public class ServerInstance {
+	String ip;
+	long lastResponseTime;
+	int port;
+	String macAddress;
+	OFPort switchPort;
+ 
+	public ServerInstance(String ip, String macAddress, int port, OFPort switchPort) {
+		this.ip = ip;
+		this.port = port;
+		this.macAddress = macAddress;
+		this.switchPort = switchPort;
+		lastResponseTime = 0;
+	}
+ 
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
+ 
+	public synchronized void setLastResponseTime(long lastResponseTime) {
+		this.lastResponseTime = lastResponseTime;
+	}
+ 
+	public synchronized long getLastResponseTime() {
+		return lastResponseTime;
+	}
+ 
+	public void setPort(int port) {
+		this.port = port;
+	}
+ 
+	public int getPort() {
+		return port;
+	}
+ 
+	public String getIp() {
+		return ip;
+	}
+ 
+	public String getMacAddress() {
+		return macAddress;
+	}
+ 
+	public void setMacAddress(String macAddress) {
+		this.macAddress = macAddress;
+	}
+ 
+	public void setSwitchPort(OFPort switchPort) {
+		this.switchPort = switchPort;
+	}
+ 
+	public OFPort getSwitchPort() {
+		return switchPort;
+	}
+ 
+ 
+}
