@@ -19,7 +19,7 @@ public class ServerInstance {
 		this.macAddress = macAddress;
 		this.switchPort = switchPort;
 		lastResponseTime = 0;
-		this.responseTimeList = new LimitedQueue<Long>(10);
+		this.responseTimeList = new LimitedQueue<Long>(100);
 	}
 
 	public void setIp(String ip) {
@@ -36,6 +36,14 @@ public class ServerInstance {
 			sum = sum + responseTime;
 		}
 		return sum/responseTimeList.size();
+	}
+	
+	public synchronized long getLatestResponseTime() {
+		if(responseTimeList.size() > 0) {
+			return responseTimeList.get(responseTimeList.size() - 1);
+		} else {
+			return 0;
+		}
 	}
 	
 	public void setPort(int port) {
